@@ -1,68 +1,127 @@
-# Conflict Tracker – Spring Boot + Frontend Vue 3
+# Conflict Tracker – App FullStack
+
+## Enllaç a la web en producció
+
+Frontend desplegat:
+
+```
+https://conflicttracker-frontend.vercel.app
+```
+
+Backend API:
+
+```
+https://conflicttrackerapp-production.up.railway.app/api/v1
+```
+
+---
 
 ## Descripció del projecte
 
-**Conflict Tracker** és un sistema d'informació. La seva finalitat és gestionar i fer un seguiment dels conflictes bèl·lics a nivell mundial, incloent-hi les faccions involucrades, els països participants i els esdeveniments clau associats a cada conflicte.
+**Conflict Tracker** és un sistema d’informació per gestionar i visualitzar conflictes bèl·lics a nivell mundial. Permet gestionar:
 
-El sistema te:
+* Conflictes
+* Països implicats
+* Faccions
+* Esdeveniments associats
+
+El sistema està dividit en:
 
 * Backend: **Java 17 + Spring Boot 3**
-* Frontend: **Vue 3**
-
-L’objectiu del projecte és demostrar una arquitectura backend robusta i una interfície web consumible que treballa sobre la mateixa API REST.
+* Frontend: **Vue 3 + Vite**
 
 ---
 
-El projecte utilitza:
+## Arquitectura del sistema
 
-* DTOs per desacoblar entitats internes
-* Mappers per conversió Entity ↔ DTO
-* Relacions JPA:
+El projecte segueix una arquitectura **REST desacoblada basada en capes**:
 
-   * ManyToMany (Conflict ↔ Country)
-   * ManyToOne (Faction → Conflict)
-   * ManyToMany (Faction ↔ Country)
-   * OneToMany (Conflict → Event)
-
----
-
-## Classes principals
-
-### Conflicts (Conflictes)
-
-* name
-* startDate
-* status (ACTIVE, FROZEN, ENDED)
-* description
-* countries implicats
-
-### Countries (Paisos)
-
-* name
-* code (ISO2 usat per banderes i icones)
-
-### Factions (Bandols)
-
-* name
-* conflict associat
-* països membres
-
-### Events (Esdeveniments)
-
-* eventDate
-* location
-* description
-* conflict associat
-
----
-
-## Execució del projecte
+```
+Frontend (Vue 3)
+      │
+      ▼
+REST API (Spring Boot)
+      │
+      ▼
+Service Layer (lògica de negoci)
+      │
+      ▼
+Repository Layer (Spring Data JPA)
+      │
+      ▼
+PostgreSQL (Supabase)
+```
 
 ### Backend (Spring Boot)
 
-Des d’IntelliJ: **Run Application** (dins de la carpeta backend)
+* Controllers → exposen API REST
+* Services → lògica de negoci
+* Repositories → accés a dades
+* Entities → model JPA
+* DTOs → comunicació frontend-backend
+* Mappers → conversió Entity ↔ DTO
 
-Servidor backend:
+### Base de dades
+
+* PostgreSQL (Supabase)
+* Relacions:
+
+  * ManyToMany (Conflict ↔ Country)
+  * ManyToOne (Faction → Conflict)
+  * ManyToMany (Faction ↔ Country)
+  * OneToMany (Conflict → Event)
+
+### Frontend (Vue 3)
+
+* Consum d’API amb Axios
+* Components modulars
+* Vista de conflictes, faccions i esdeveniments
+* Gestió d’estats per dades dinàmiques
+
+---
+
+## Variables d’entorn (deploy nou)
+
+### Backend (Railway / qualsevol hosting)
+
+Variables necessàries:
+
+```
+DB_URL=jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres?sslmode=require
+DB_USERNAME=postgres
+DB_PASSWORD=TU_CONTRASENA_DE_SUPABASE
+PORT=8080
+```
+
+### Important
+
+* `DB_URL` ha d’utilitzar Supabase Transaction Pooler (recomanat per producció a Railway) 
+* `sslmode=require` és obligatori per connexions externes segures
+* Username sempre és `postgres` (Supabase)
+* Password és el de Supabase Connect (Boto verd a la part superior)
+* El port 6543 correspon al pooler de transaccions
+
+---
+
+### Frontend (Vercel / Netlify / local build)
+
+Crear `.env`:
+
+```
+VITE_API_URL=https://conflicttrackerapp-production.up.railway.app/api/v1
+```
+
+---
+
+## Execució local
+
+### Backend (Spring Boot)
+
+```
+./mvnw spring-boot:run
+```
+
+Servidor:
 
 ```
 http://localhost:8080
@@ -72,9 +131,7 @@ http://localhost:8080
 
 ### Frontend (Vue 3)
 
-Des d'Visual Studio Code (projecte Vue dins de la carpeta frontend):
-
-```bash
+```
 npm install
 npm run dev
 ```
@@ -89,33 +146,28 @@ http://localhost:5173
 
 ## API REST
 
-URL base:
+URL BASE:
 
 ```
-http://localhost:8080/api/v1
+/api/v1
 ```
 
 ---
 
-### Conflicts (Conflictes)
+### Conflicts
 
-```http
+```
 GET    /conflicts
 GET    /conflicts/{id}
 POST   /conflicts
 PUT    /conflicts/{id}
 DELETE /conflicts/{id}
-```
-
-Filtres:
-
-```
-GET /conflicts?status=ACTIVE
+GET    /conflicts?status=ACTIVE
 ```
 
 ---
 
-### Countries → Conflicts (Paisos → Conflictes on participen)
+### Countries
 
 ```
 GET /countries/{code}/conflicts
@@ -123,7 +175,7 @@ GET /countries/{code}/conflicts
 
 ---
 
-### Factions (Bandols)
+### Factions
 
 ```
 GET    /factions
@@ -136,7 +188,7 @@ DELETE /factions/{id}
 
 ---
 
-### Events (Esdeveniments)
+### Events
 
 ```
 GET    /events
@@ -149,79 +201,131 @@ DELETE /events/{id}
 
 ---
 
-## Exemples amb cURL
-
-### Obtenir tots els conflictes
-
-```
-curl -X GET http://localhost:8080/api/v1/conflicts
-```
-
----
-
-### Filtrar per estat
-
-```
-curl -X GET "http://localhost:8080/api/v1/conflicts?status=ACTIVE"
-```
-
----
-
-### Conflictes per país
-
-```
-curl -X GET http://localhost:8080/api/v1/countries/UA/conflicts
-```
-
----
-
-### Detall conflicte
-
-```
-curl -X GET http://localhost:8080/api/v1/conflicts/1
-```
-
----
+## Exemples cURL
 
 ### Crear conflicte
 
 ```
-curl -X POST http://localhost:8080/api/v1/conflicts \
+curl -X POST https://conflicttrackerapp-production.up.railway.app/api/v1/conflicts \
 -H "Content-Type: application/json" \
 -d '{
   "name": "Segona Guerra Mundial",
   "startDate": "1939-09-01",
   "status": "ENDED",
-  "description": "Conflicte global entre 1939 i 1945"
+  "description": "Conflicte global"
 }'
+```
+
+---
+
+### Obtenir conflictes
+
+```
+curl -X GET https://conflicttrackerapp-production.up.railway.app/api/v1/conflicts
 ```
 
 ---
 
 ## Frontend (Vue 3)
 
-L’aplicació Vue consumeix directament l’API Spring Boot.
+Funcionalitats:
 
-### Funcionalitats:
-
-* Llistat de conflictes en format tabla
+* Llistat de conflictes
 * Cercador en temps real
-* Cards amb estats en color
-* Vista de detall per conflicte
-* Banderes automàtiques per país (FlagCDN API)
-* Faccions amb països suport
-* Esdeveniments per conflicte
-* Botó de tornar enrere
+* Estat visual (ACTIVE / FROZEN / ENDED) amb colors
+* Vista detallada de conflicte
+* Països amb banderes automàtiques (FlagCDN)
+* Faccions per conflicte
+* Esdeveniments associats
 
 ---
 
-## Icons Banderes 
+## Icons de banderes
 
-Les banderes es carreguen automàticament des de:
+S’utilitza:
 
 ```
 https://flagcdn.com
 ```
 
-Basat en codis ISO2 (ex: UA, US, DE, FR)
+Basat en codis ISO2 (ex: UA, US, FR, DE)
+
+---
+
+## Modificacions importants del projecte
+
+### Problemes inicials (Backend Spring Boot)
+
+#### 1. Error JDBC / Dialect (Railway)
+
+**Error:**
+
+```
+Unable to determine Dialect without JDBC metadata
+```
+
+**Solució:**
+
+* Configuració correcta de `DB_URL`
+* Afegit `sslmode=require`
+* Variables d’entorn correctes a Railway
+
+---
+
+#### 2. Error connexió PostgreSQL (Network unreachable)
+
+**Error:**
+
+```
+java.net.SocketException: Network is unreachable
+```
+
+**Solució:**
+
+* Canvi de variable incorrecta a:
+
+```
+jdbc:postgresql://...supabase.co:5432/postgres?sslmode=require
+```
+
+---
+
+#### 3. Relacions ManyToMany no persistien
+
+**Problema:**
+
+* `countries` arribaven buits al crear conflictes
+
+**Solució:**
+
+* Assignació manual d’entitats via `CountryRepository`
+* Conversió DTO → Entity corregida
+
+---
+
+#### 4. Factions / Events retornaven 500
+
+**Problema:**
+
+* IDs incorrectes o nulls
+* mapping incomplet de relacions
+
+**Solució:**
+
+* Validació amb `findById().orElseThrow()`
+* Assignació explícita de `Conflict` i `Country`
+
+---
+
+### Problemes Frontend Vue
+
+#### 1. Countries no es mostraven
+
+**Problema:**
+
+* Backend retornava DTO buit
+
+**Solució:**
+
+* Fix de mapping + càrrega de relacions JPA
 
