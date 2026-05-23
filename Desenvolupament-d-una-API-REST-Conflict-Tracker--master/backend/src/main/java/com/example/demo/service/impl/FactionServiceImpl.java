@@ -56,14 +56,18 @@ public class FactionServiceImpl implements FactionService {
 
         faction.setConflict(conflict);
 
+        if (faction.getSupportingCountries() == null) {
+            faction.setSupportingCountries(new java.util.HashSet<>());
+        }
+
         if (dto.getSupportingCountryIds() != null) {
             dto.getSupportingCountryIds().forEach(countryId -> {
-                Country country = countryRepository.findById(countryId).orElseThrow(() -> new RuntimeException("Country not found"));
+                Country country = countryRepository.findById(countryId).orElseThrow(() -> new RuntimeException("Country not found: " + countryId));
                 faction.getSupportingCountries().add(country);
             });
         }
-
-        return FactionMapper.toDTO(factionRepository.save(faction));
+        Faction saved = factionRepository.save(faction);
+        return FactionMapper.toDTO(saved);
     }
 
     @Override
@@ -78,7 +82,7 @@ public class FactionServiceImpl implements FactionService {
 
         if (dto.getSupportingCountryIds() != null) {
             dto.getSupportingCountryIds().forEach(countryId -> {
-                Country country = countryRepository.findById(countryId).orElseThrow(() -> new RuntimeException("Country not found"));
+                Country country = countryRepository.findById(countryId).orElseThrow(() -> new RuntimeException("Country not found: " + countryId));
                 faction.getSupportingCountries().add(country);
             });
         }

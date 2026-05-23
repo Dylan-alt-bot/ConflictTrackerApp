@@ -2,16 +2,15 @@ package com.example.demo.mapper;
 
 import com.example.demo.dto.EventDTO;
 import com.example.demo.model.Event;
+import com.example.demo.model.Conflict;
 
 public class EventMapper {
 
-    private EventMapper() {
-    }
+    private EventMapper() {}
 
     public static EventDTO toDTO(Event event) {
 
-        if (event == null)
-            return null;
+        if (event == null) return null;
 
         EventDTO dto = new EventDTO();
 
@@ -20,11 +19,11 @@ public class EventMapper {
         dto.setLocation(event.getLocation());
         dto.setDescription(event.getDescription());
 
-        if (event.getConflict() != null) {
+        Conflict conflict = event.getConflict();
 
-            dto.setConflictId(event.getConflict().getId());
-            dto.setConflictName(event.getConflict().getName());
-
+        if (conflict != null) {
+            dto.setConflictId(conflict.getId());
+            dto.setConflictName(conflict.getName() != null ? conflict.getName() : null);
         }
         return dto;
     }
