@@ -22,19 +22,16 @@ public class CountryController {
         this.conflictService = conflictService;
     }
 
-    // CREATE COUNTRY (AIXÒ ET FALTAVA)
     @PostMapping
     public ResponseEntity<CountryDTO> create(@RequestBody CountryDTO dto) {
         return ResponseEntity.ok(countryService.create(dto));
     }
 
-    // GET ALL COUNTRIES
     @GetMapping
     public ResponseEntity<List<CountryDTO>> getAll() {
         return ResponseEntity.ok(countryService.findAll());
     }
 
-    // GET CONFLICTS BY COUNTRY CODE
     @GetMapping("/{code}/conflicts")
     public ResponseEntity<List<ConflictDTO>> getConflictsByCountry(
             @PathVariable String code) {
