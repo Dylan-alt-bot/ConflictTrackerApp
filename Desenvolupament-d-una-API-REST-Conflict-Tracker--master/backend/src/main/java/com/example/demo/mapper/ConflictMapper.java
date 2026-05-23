@@ -14,19 +14,34 @@ public class ConflictMapper {
     private ConflictMapper() {
     }
 
-    public static ConflictDTO toDTO(Conflict conflict) {
-        if (conflict == null) return null;
+    public static ConflictDTO toDTO(Conflict conflict){
 
         ConflictDTO dto = new ConflictDTO();
+
         dto.setId(conflict.getId());
         dto.setName(conflict.getName());
-        dto.setStartDate(conflict.getStartDate());
-        dto.setStatus(conflict.getStatus());
         dto.setDescription(conflict.getDescription());
 
-        List<CountryDTO> countries = conflict.getCountries().stream().map(ConflictMapper::toCountryDTO).collect(Collectors.toList());
+        dto.setStatus(conflict.getStatus());
 
-        dto.setCountries(countries);
+        dto.setStartDate(conflict.getStartDate());
+
+
+        dto.setCountries(conflict.getCountries().stream().map(country -> {
+
+            CountryDTO c = new CountryDTO();
+
+            c.setId(country.getId());
+
+            c.setName(country.getName());
+
+            c.setCode(country.getCode());
+
+            return c;
+
+        }).toList()
+
+        );
         return dto;
     }
 

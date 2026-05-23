@@ -45,36 +45,55 @@ public class ConflictServiceImpl implements ConflictService {
 
     @Override
     public ConflictDTO create(CreateConflictDTO dto) {
+
         Conflict conflict = ConflictMapper.fromCreateDTO(dto);
 
-        if (dto.getCountryCodes() != null) {
-            dto.getCountryCodes().forEach(countryId -> {
-                Country country = countryRepository.findById(Long.valueOf(countryId)).orElseThrow(() -> new RuntimeException("Country not found"));
+        if(dto.getCountryIds() != null){
+
+            dto.getCountryIds().forEach(id -> {
+
+                Country country = countryRepository.findById(id).orElseThrow(() -> new RuntimeException("Country not found"));
+
                 conflict.getCountries().add(country);
+
             });
+
         }
 
-        return ConflictMapper.toDTO(conflictRepository.save(conflict));
+        Conflict saved = conflictRepository.save(conflict);
+        return ConflictMapper.toDTO(saved);
     }
 
     @Override
-    public ConflictDTO update(Long id, CreateConflictDTO dto) {
+    public ConflictDTO update(Long id, CreateConflictDTO dto){
+
         Conflict conflict = conflictRepository.findById(id).orElseThrow(() -> new RuntimeException("Conflict not found"));
 
         conflict.setName(dto.getName());
+
         conflict.setStartDate(dto.getStartDate());
+
         conflict.setStatus(dto.getStatus());
+
         conflict.setDescription(dto.getDescription());
+
+
         conflict.getCountries().clear();
 
-        if (dto.getCountryCodes() != null) {
-            dto.getCountryCodes().forEach(countryId -> {
-                Country country = countryRepository.findById(Long.valueOf(countryId)).orElseThrow(() -> new RuntimeException("Country not found"));
+        if(dto.getCountryIds()!=null){
+
+            dto.getCountryIds().forEach(countryId -> {
+
+                Country country = countryRepository.findById(countryId).orElseThrow(() -> new RuntimeException("Country not found"));
+
                 conflict.getCountries().add(country);
+
             });
+
         }
 
         return ConflictMapper.toDTO(conflictRepository.save(conflict));
+
     }
 
     @Override
