@@ -8,7 +8,6 @@
 
 <div v-else-if="conflict">
 
-    <!-- 🔙 BOTÓ ENRERE -->
     <button class="back-btn" @click="goBack">
         ← Tornar
     </button>
@@ -32,12 +31,6 @@
     </p>
 
     <hr>
-
-    <!-- resta igual... -->
-
-
-
-    <!-- PAÏSOS -->
 
     <h2>Països implicats</h2>
 
@@ -115,13 +108,7 @@
     No hi ha faccions
 </div>
 
-
-
-    <!-- EVENTS -->
-
     <h2>Esdeveniments</h2>
-
-
 
     <div v-if="events.length">
 
@@ -152,7 +139,6 @@
         </ul>
 
     </div>
-
 
 
     <div v-else>
@@ -283,9 +269,7 @@ const flagUrlFromName = (name) => {
 
     const code = nameToCodeMap[name] || "";
 
-    return code
-        ? `https://flagcdn.com/w40/${code}.png`
-        : "";
+    return code ? `https://flagcdn.com/w40/${code}.png` : "";
 };
 
 </script>
