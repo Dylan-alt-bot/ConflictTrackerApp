@@ -1,6 +1,8 @@
 package com.example.demo.controller.rest;
 
+import com.example.demo.dto.CountryDTO;
 import com.example.demo.dto.ConflictDTO;
+import com.example.demo.service.CountryService;
 import com.example.demo.service.ConflictService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,16 +13,34 @@ import java.util.List;
 @RequestMapping("/api/v1/countries")
 public class CountryController {
 
+    private final CountryService countryService;
     private final ConflictService conflictService;
 
-    public CountryController(ConflictService conflictService) {
+    public CountryController(CountryService countryService,
+                             ConflictService conflictService) {
+        this.countryService = countryService;
         this.conflictService = conflictService;
     }
 
-    @GetMapping("/{code}/conflicts")
-    public ResponseEntity<List<ConflictDTO>> getConflictsByCountry(@PathVariable("code") String code) {
+    // CREATE COUNTRY (AIXÒ ET FALTAVA)
+    @PostMapping
+    public ResponseEntity<CountryDTO> create(@RequestBody CountryDTO dto) {
+        return ResponseEntity.ok(countryService.create(dto));
+    }
 
-        List<ConflictDTO> conflicts = conflictService.findByCountryCode(code);
-        return ResponseEntity.ok(conflicts);
+    // GET ALL COUNTRIES
+    @GetMapping
+    public ResponseEntity<List<CountryDTO>> getAll() {
+        return ResponseEntity.ok(countryService.findAll());
+    }
+
+    // GET CONFLICTS BY COUNTRY CODE
+    @GetMapping("/{code}/conflicts")
+    public ResponseEntity<List<ConflictDTO>> getConflictsByCountry(
+            @PathVariable String code) {
+
+        return ResponseEntity.ok(
+                conflictService.findByCountryCode(code)
+        );
     }
 }
